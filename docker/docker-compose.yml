@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  laurelwoods-oracle:
+    image: jaspeen/oracle-xe-11g
+    volumes:
+      - laurelwoods_volume_oracle:/root
+    ports:
+      - "1823:1521"
+      - "8081:8080"
+  
+  laurelwoods-application:
+    build: 
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - "8888:8888"
+    depends_on:
+      laurelwoods-oracle:
+        condition: services_healthy

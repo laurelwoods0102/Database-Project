@@ -1,0 +1,38 @@
+FROM tensorflow/tensorflow
+LABEL MAINTAINER "Laurelwoods"
+
+### Install Oracle Instant Client
+RUN apt-get -y update && \
+    apt-get -y install aptitude && \
+    apt-get -y install nano && \
+    aptitude -y install alien && \
+    aptitude -y install libaio1
+
+COPY /settings/oracle-instantclient19.6-basic-19.6.0.0.0-1.x86_64.rpm /root
+COPY /settings/oracle-instantclient19.6-devel-19.6.0.0.0-1.x86_64.rpm /root
+COPY /settings/oracle-instantclient19.6-sqlplus-19.6.0.0.0-1.x86_64.rpm /root
+
+RUN cd /root && alien -i --scripts *.rpm
+
+ENV ORACLE_HOME "/usr/lib/oracle/19.6/client64"
+ENV LD_LIBRARY_PATH "/usr/lib/oracle/19.6/client64/lib:$LD_LIBRARY_PATH"
+
+COPY /settings/listener.ora ${ORACLE_HOME}/lib/network/admin
+
+
+### Install Python Libraries
+
+#ADD requirements.txt
+#RUN pip freeze > requirements.txt
+
+RUN pip install --upgrade pip && \
+    pip install pandas && \
+    pip install scikit-learn && \
+    pip install matplotlib && \
+    pip install cx_Oracle && \
+    pip install django && \
+    pip install djangorestframework && \
+    pip install django-filter
+
+EXPOSE 8888
+CMD tail -f /dev/null
