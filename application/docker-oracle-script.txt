@@ -1,2 +1,0 @@
-docker run --name laurelwoods_oracle -d -p 1522:1521 -p 8081:8080 -v laurelwoods_oracle_volume:/u01/app/oracle/oradata jaspeen/oracle-xe-11g
-docker exec -it laurelwoods_oracle sqlplus
