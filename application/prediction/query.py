@@ -1,14 +1,13 @@
-import numpy as np
 import pandas as pd
 import cx_Oracle as oracle
-import tensorflow as tf
 
 from pprint import pprint
 
 class QueryProcess:
     def __init__(self):
-        self.con = oracle.connect("sys", "oracle", "172.17.0.2:1521", oracle.SYSDBA)
-
+        #self.con = oracle.connect("sys", "oracle", "172.17.0.2:1521", oracle.SYSDBA)   # Container
+        self.con = oracle.connect("sys", "oracle", "localhost:1522", oracle.SYSDBA)     # Local 
+        
     def status(self):
         return pd.read_sql('select status from v$instance', con=self.con)
 
@@ -55,7 +54,11 @@ class QueryProcess:
         weather = self.weather(year)
         GS = self.GS_by_city(year, category, city)
         
-        return pd.concat([GS["Date"], local_man, local_woman, Subway, weather, GS["GS"]], axis=1)
+        #return pd.concat([GS["Date"], local_man, local_woman, Subway, weather, GS["GS"]], axis=1)
+
+        data = pd.concat([local_man, local_woman, Subway, weather, GS["GS"]], axis=1)
+        data.index = GS["Date"]
+        return data
 
 
 if __name__ == "__main__":
@@ -68,48 +71,4 @@ if __name__ == "__main__":
     pprint(processor.subway("2017", "Songpa-gu")["TOTAL_PASSENGER"])
     '''
 
-    pprint(query_processor.query_dataset(2017, "Gangnam-gu", "Beer").columns.values)
-
-    
-class Preprocess:
-    def __init__(self, DATA, TRAIN_SPLIT, TEST_SPLIT, PAST_HISTORY, FUTURE_TARGET, BATCH_SIZE, EVALUATION_INTERVAL, EPOCHS, SEED):
-        self.train_split = TRAIN_SPLIT
-        self.test_split = TEST_SPLIT
-        self.past_history = PAST_HISTORY
-        self.future_target = FUTURE_TARGET
-        self.batch_size = BATCH_SIZE
-        self.evaluation_interval = EVALUATION_INTERVAL
-        self.epochs = EPOCHS
-        self.seed = SEED
-    
-    def normalization(self):    # Normalization
-        train_mean = self.data.mean()
-        train_std = self.data.std()
-
-        self.dataset = (self.data - train_mean)/train_std
-        
-        return train_mean, train_std
-
-    def multivariate_data(self, dataset, target, start_index, end_index, history_size, target_size, step, single_step=False):
-        data = []
-        labels = []
-
-        start_index = start_index + history_size
-        if end_index is None:
-            end_index = len(dataset) - target_size
-
-        for i in range(start_index, end_index):
-            indices = range(i-history_size, i, step)
-            data.append(dataset[indices])
-
-            if single_step:
-                labels.append(target[i+target_size])
-            else:
-                labels.append(target[i:i+target_size])
-
-        return np.array(data), np.array(labels)
-
-    
-
-
-
+    pprint(query_processor.query_dataset(2017, "Gangnam-gu", "Beer").values[:, :15])
