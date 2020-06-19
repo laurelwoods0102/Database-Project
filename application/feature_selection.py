@@ -7,12 +7,10 @@ from query import QueryProcess
 
 from pprint import pprint
 
-
-
 class FeatureSelectionModel:
     def __init__(self):
         self.alpha = np.logspace(-3, 1, 5)
-        self.max_iter = np.logspace(3, 7, 5)
+        self.max_iter = np.logspace(3, 7, 5)    # As Shrinkage alpha increases, need to increase max_iter to converge coefficients
 
         self.query_processor = QueryProcess()
 
@@ -32,30 +30,31 @@ class FeatureSelectionModel:
         plt.savefig("{0}_{1}.png".format(city, category))
         plt.close()
 
-
     def select_feature(self, city, category):
         data_2017 = self.query_processor.query_dataset(2017, str(city), str(category))
         data_2018 = self.query_processor.query_dataset(2018, str(city), str(category))
         data = pd.concat([data_2017, data_2018])
-        column = data.columns.values[:15]
+        column = data.columns.values[:15]       # Column Index for Plotting
 
+        # Normalization
         dataset = data.values
         data_mean = dataset.mean(axis=0)
         data_std = dataset.std(axis=0)
 
         dataset = (dataset-data_mean)/data_std
 
+        # Compare Coefficient of different Shrinkage alpha
         result = []
         for i, item in enumerate(zip(self.alpha, self.max_iter)):
             lasso = Lasso(alpha=item[0], max_iter=item[1]).fit(dataset[:, :15], dataset[:, -1])
-            result.append(pd.Series(np.hstack([lasso.coef_])))
+            result.append(pd.Series(np.hstack([lasso.coef_])))  # Sometimes include lasso.intercept
 
         df_result = pd.DataFrame(result, index=self.alpha)
-        df_result.columns = column
+        df_result.columns = column      # Add Column Index for Plotting
 
         self.plot_feature(df_result, city, category, column)
         
-        df_result = df_result[::-1].apply(np.absolute)
+        df_result = df_result[::-1].apply(np.absolute)      # To compare distance from 0
         feature_sorted = df_result.loc[self.alpha[0]].to_frame().sort_values(by=[self.alpha[0]], ascending=False)
         #print(feature_sorted.index.tolist())
 
@@ -64,6 +63,7 @@ class FeatureSelectionModel:
                 f.write(features)
                 f.write("\n")
 
+    # Cartesian Product of all Cities and Categories
     def process_all(self):
         exception = list()
         for city in self.city_list:

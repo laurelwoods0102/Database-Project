@@ -19,7 +19,8 @@ class Preprocess:
         self.epochs = EPOCHS
         self.seed = SEED
     
-    def normalization(self):    # Normalization
+    # Normalization
+    def normalization(self):    
         train_mean = self.data.mean()
         train_std = self.data.std()
 
