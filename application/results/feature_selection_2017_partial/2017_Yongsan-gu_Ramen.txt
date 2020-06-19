@@ -1,0 +1,15 @@
+man_40~59
+woman_20~39
+woman_00~19
+woman_40~59
+man_60~99
+man_00~19
+TOTAL_PASSENGER
+Temperature
+woman_60~99
+Cloud
+Wind_Velocity
+Precipitation
+Humidity
+man_20~39
+Snowfall
