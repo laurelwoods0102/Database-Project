@@ -5,8 +5,8 @@ from pprint import pprint
 
 class QueryProcess:
     def __init__(self):
-        self.con = oracle.connect("sys", "oracle", "172.17.0.2:1521", oracle.SYSDBA)   # Container
-        #self.con = oracle.connect("sys", "oracle", "localhost:1522", oracle.SYSDBA)     # Local 
+        #self.con = oracle.connect("sys", "oracle", "172.17.0.3:1521", oracle.SYSDBA)   # Container
+        self.con = oracle.connect("sys", "oracle", "localhost:1522", oracle.SYSDBA)     # Local 
         
     def status(self):
         return pd.read_sql('select status from v$instance', con=self.con)
@@ -58,7 +58,7 @@ class QueryProcess:
 
         data = pd.concat([local_man, local_woman, Subway, weather, GS["GS"]], axis=1)
         data.index = GS["Date"]
-        return data
+        return data        
 
 
 if __name__ == "__main__":
